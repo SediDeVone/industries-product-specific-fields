@@ -1,12 +1,11 @@
-from config.config_file import import_json_data, AUTHORISATION_DICT
 from api_sf_rest_calls import prepare_object_fields_describe, download_all
-from authorization import authorize
+from salesforceConnector import connect_to_sf_environment
 
 
 def get_editable_field_per_product(object_name, product_id_field, default_retrieve_query):
     object_limit = 50000
 
-    source_access_token, source_instance_url = authorize(AUTHORISATION_DICT['source'])
+    source_access_token, source_instance_url = connect_to_sf_environment('dfa-qa', 'test')
 
     createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,
                                                    False, False)
@@ -41,7 +40,7 @@ def get_editable_field_per_product(object_name, product_id_field, default_retrie
 def get_editable_field_per_product_and_action(object_name, product_id_field, default_retrieve_query, action_field_name, sub_action_field_name):
     object_limit = 50000
 
-    source_access_token, source_instance_url = authorize(AUTHORISATION_DICT['source'])
+    source_access_token, source_instance_url = connect_to_sf_environment('dfa-qa', 'test')
 
     createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,
                                                    False, False)
@@ -108,8 +107,6 @@ def convert_objects_to_dict(main_records, field_name):
 
 
 if __name__ == "__main__":
-    import_json_data("dfa_full_sales_migration_v2.json")
-
     print('----------------- PER PRODUCT ----------------------')
     # Get Schema for Quote Line Items
     print('----------------- QLI ----------------------')
