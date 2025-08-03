@@ -60,14 +60,12 @@ def get_editable_field_per_product_and_action(object_name, product_id_field, def
         sub_action_name = main_record[sub_action_field_name]
         final_action_name = prepare_action_name(action_name, sub_action_name)
 
-        # Get fields for specific product - i.e. ENNI
         if product_name in fields_map:
             appropiate_fields_per_action = fields_map[product_name]
         else:
             appropiate_fields_per_action = dict()
             fields_map[product_name] = appropiate_fields_per_action
 
-        # Get fields for specific action within product - i.e. ENNI, New Quote
         if final_action_name in appropiate_fields_per_action:
             appropiate_fields = appropiate_fields_per_action[final_action_name]
         else:
@@ -79,7 +77,7 @@ def get_editable_field_per_product_and_action(object_name, product_id_field, def
                 appropiate_fields.add(field_name)
 
         fields_map[product_name][final_action_name] = appropiate_fields
-    # print(fields_map)
+
     for key, value in fields_map.items():
         print(key, value)
 
