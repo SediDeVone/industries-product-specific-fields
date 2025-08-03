@@ -39,21 +39,26 @@ This information is valuable for:
    ```
    pip install -r requirements.txt
    ```
+   Note: If you encounter an ImportError for simple_salesforce, install it explicitly:
+   ```
+   pip install simple-salesforce
+   ```
 
 4. Authenticate to your Salesforce org using Salesforce CLI and set an alias (example alias: org-qa):
-   - Interactive/Web login (recommended):
-     ```
-     sf org login web --alias org-qa
-     ```
-   - Or JWT-based login (for CI/automation). Ensure you have server.key and set environment variables:
-     - org-qa_CLIENT_ID: Connected App client id
-     - org-qa_USERNAME: Username of the target org
-     Then run:
-     ```
-     sf org login jwt --client-id $org-qa_CLIENT_ID --jwt-key-file server.key --username $org-qa_USERNAME --alias org-qa
-     ```
+  - Interactive/Web login (recommended):
+    ```
+    sf org login web --alias org-qa
+    ```
+  - Or JWT-based login (for CI/automation). Ensure you have server.key and set environment variables.
+    Important: The script derives env var names from the alias using `alias.capitalize()`. For an alias `org-qa`, it will look for:
+    - Org-qa_CLIENT_ID: Connected App client id
+    - Org-qa_USERNAME: Username of the target org
+    Then run:
+    ```
+    sf org login jwt --client-id $Org-qa_CLIENT_ID --jwt-key-file server.key --username $Org-qa_USERNAME --alias org-qa
+    ```
 
-Note: You can specify the Salesforce org alias and domain at runtime using command-line parameters. The --org parameter is required; --domain defaults to 'test' if not provided.
+Note: You can specify the Salesforce org alias and domain at runtime using command-line parameters. The --org parameter is required; --domain defaults to 'test' if not provided. The alias is case-insensitive for CLI lookup but the JWT env vars are case-sensitive as described above.
 
 ## Usage
 
@@ -103,6 +108,7 @@ Python packages (installed via requirements.txt):
 - requests: For making HTTP requests to the Salesforce REST API
 - unicodecsv: For handling CSV data with Unicode support (required by some environments)
 - salesforce_bulk: For interacting with the Salesforce Bulk API
+- simple_salesforce: Imported by the connector module (ensure it's available even if not directly used at runtime)
 
 Other tools:
 - Salesforce CLI (sf): Used to obtain access tokens and instance URL
