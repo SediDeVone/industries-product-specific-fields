@@ -1,11 +1,12 @@
 from api_sf_rest_calls import prepare_object_fields_describe, download_all
 from salesforceConnector import connect_to_sf_environment
+import argparse
 
 
-def get_editable_field_per_product(object_name, product_id_field, default_retrieve_query):
+def get_editable_field_per_product(object_name, product_id_field, default_retrieve_query, org_alias, domain='test'):
     object_limit = 50000
 
-    source_access_token, source_instance_url = connect_to_sf_environment('dfa-qa', 'test')
+    source_access_token, source_instance_url = connect_to_sf_environment(org_alias, domain)
 
     createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,
                                                    False, False)
@@ -37,10 +38,10 @@ def get_editable_field_per_product(object_name, product_id_field, default_retrie
         print(key, value)
 
 
-def get_editable_field_per_product_and_action(object_name, product_id_field, default_retrieve_query, action_field_name, sub_action_field_name):
+def get_editable_field_per_product_and_action(object_name, product_id_field, default_retrieve_query, action_field_name, sub_action_field_name, org_alias, domain='test'):
     object_limit = 50000
 
-    source_access_token, source_instance_url = connect_to_sf_environment('dfa-qa', 'test')
+    source_access_token, source_instance_url = connect_to_sf_environment(org_alias, domain)
 
     createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,
                                                    False, False)
@@ -107,26 +108,31 @@ def convert_objects_to_dict(main_records, field_name):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Analyze editable fields per product in Salesforce objects')
+    parser.add_argument('--org', dest='org_alias', required=True, help='Salesforce CLI alias (org name), e.g., org-qa')
+    parser.add_argument('--domain', dest='domain', default='test', help='Salesforce domain (login domain), default: test')
+    args = parser.parse_args()
+
     print('----------------- PER PRODUCT ----------------------')
     # Get Schema for Quote Line Items
     print('----------------- QLI ----------------------')
-    get_editable_field_per_product('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false')
+    get_editable_field_per_product('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
     print('--------------------------------------------')
     # Get Schema for Quote Line Items
     print('----------------- ORP ----------------------')
-    get_editable_field_per_product('OrderItem', 'Product2Id', ' WHERE isDeleted = false')
+    get_editable_field_per_product('OrderItem', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
     print('-------------------------------------')
     # Get Schema for Quote Line Items
     print('----------------- Asset --------------------')
-    get_editable_field_per_product('Asset', 'Product2Id', ' WHERE isDeleted = false')
+    get_editable_field_per_product('Asset', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
     print('--------------------------------------------')
 
     # print('----------------- PER PRODUCT AND ACTION----------------------')
     # # Get Schema for Quote Line Items
     # print('----------------- QLI ----------------------')
-    # get_editable_field_per_product_and_action('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c')
+    # get_editable_field_per_product_and_action('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c', args.org_alias, args.domain)
     # print('--------------------------------------------')
     # # Get Schema for Quote Line Items
     # print('----------------- ORP ----------------------')
-    # get_editable_field_per_product_and_action('OrderItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c')
+    # get_editable_field_per_product_and_action('OrderItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c', args.org_alias, args.domain)
     # print('-------------------------------------')
