@@ -33,7 +33,7 @@ def get_editable_field_per_product(object_name, product_id_field, default_retrie
                     appropiate_fields.add(field_name)
 
             fields_map[product_name] = appropiate_fields
-    # print(fields_map)
+
     for key, value in fields_map.items():
         print(key, value)
 
