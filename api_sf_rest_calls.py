@@ -15,7 +15,7 @@ def sf_api_call(access_token, instance_url, action, parameters={}, method='get',
         # other methods not implemented in this example
         raise ValueError('Method should be get or post or patch.')
 
-    print('Debug: API %s call: %s' % (method, r.url))
+    # print('Debug: API %s call: %s' % (method, r.url))
 
     if r.status_code < 300:
         if method == 'patch':
