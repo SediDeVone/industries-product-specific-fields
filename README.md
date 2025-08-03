@@ -21,7 +21,7 @@ This information is valuable for:
 ### Prerequisites
 
 1. Python 3.x
-2. Salesforce organization with API access
+2. Salesforce org with API access and Salesforce CLI (sf) installed and authenticated
 
 ### Installation
 
@@ -35,85 +35,74 @@ This information is valuable for:
    cd product-specific-fields
    ```
 
-3. Install required dependencies:
+3. Install required Python dependencies:
    ```
    pip install -r requirements.txt
    ```
 
-4. Configure your Salesforce connection:
-   - Create a copy of the example configuration file in the config directory
-   - Update the configuration with your Salesforce credentials
-   - Protect your configuration file to prevent leaking access data:
+4. Authenticate to your Salesforce org using Salesforce CLI and set an alias (example alias: org-qa):
+   - Interactive/Web login (recommended):
      ```
-     git update-index --skip-worktree config/your_config_file.json
+     sf org login web --alias org-qa
+     ```
+   - Or JWT-based login (for CI/automation). Ensure you have server.key and set environment variables:
+     - org-qa_CLIENT_ID: Connected App client id
+     - org-qa_USERNAME: Username of the target org
+     Then run:
+     ```
+     sf org login jwt --client-id $org-qa_CLIENT_ID --jwt-key-file server.key --username $org-qa_USERNAME --alias org-qa
      ```
 
-## Configuration
-
-The configuration file (JSON format) should include:
-- Salesforce authentication details (username, password, security token, etc.)
-- Object configurations
-- Field mapping information
-
-Example configuration structure:
-```json
-{
-  "namespace": "",
-  "external field name": "Legacy_ID__c",
-  "environment_access": [
-    {
-      "name": "source",
-      "username": "your_username",
-      "password": "your_password",
-      "security_token": "your_security_token",
-      "host": "your_instance.salesforce.com",
-      "consumer_key": "your_consumer_key",
-      "consumer_secret": "your_consumer_secret",
-      "is_sandbox": true
-    }
-  ],
-  "objects": [
-    {
-      "name": "ObjectName",
-      "default_retrieve_query": " WHERE isDeleted = false",
-      "matching_api_name": "Id",
-      "record_type_mapping": [],
-      "variants": [],
-      "dependencies": []
-    }
-  ]
-}
-```
+Note: You can specify the Salesforce org alias and domain at runtime using command-line parameters. The --org parameter is required; --domain defaults to 'test' if not provided.
 
 ## Usage
 
 Run the main script to analyze fields per product:
 
 ```
-python getEditableFields.py
+python getEditableFields.py --org <your-org-alias> --domain <login-domain>
+```
+
+Examples:
+- Using a sandbox alias and default domain:
+```
+python getEditableFields.py --org org-qa
+```
+- Using a production alias and login domain:
+```
+python getEditableFields.py --org org-prod --domain login
 ```
 
 This will:
-1. Connect to your Salesforce organization
+1. Connect to your Salesforce organization via the Salesforce CLI token
 2. Retrieve records for QuoteLineItem, OrderItem, and Asset
 3. Analyze which fields are populated for each product
 4. Output the results to the console
 
 You can modify the script to:
-- Analyze different objects
-- Change the query conditions
-- Enable the product-and-action analysis (uncomment the relevant section)
-- Save results to a file instead of console output
+- Analyze different objects (change object names and product id field in get_editable_field_per_product calls)
+- Change the query conditions (default_retrieve_query)
+- Enable the product-and-action analysis (uncomment the "PER PRODUCT AND ACTION" section at the bottom)
+
+## Configuration
+
+No JSON configuration file is required. Authentication is handled via Salesforce CLI. For JWT re-auth fallback, the script looks for the following environment variables based on your alias (example alias 'org-qa'):
+- org-qa_CLIENT_ID
+- org-qa_USERNAME
+
+Additionally, ensure a private key file named server.key is present if you use JWT login.
 
 ## Security Note
 
-The configuration file contains sensitive information (Salesforce credentials). Make sure to:
-- Never commit your actual configuration file to version control
-- Use the git skip-worktree feature as mentioned in the setup instructions
-- Consider using environment variables or a secure vault for credentials in production environments
+- Do not commit any credentials or private keys to version control.
+- Prefer using Salesforce CLI auth mechanisms; for JWT, store client id and username in environment variables and server.key securely.
 
 ## Dependencies
 
-- requests: For making HTTP requests to the Salesforce API
-- unicodecsv: For handling CSV data with Unicode support
+Python packages (installed via requirements.txt):
+- requests: For making HTTP requests to the Salesforce REST API
+- unicodecsv: For handling CSV data with Unicode support (required by some environments)
 - salesforce_bulk: For interacting with the Salesforce Bulk API
+
+Other tools:
+- Salesforce CLI (sf): Used to obtain access tokens and instance URL
