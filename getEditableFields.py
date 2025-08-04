@@ -109,28 +109,31 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Analyze editable fields per product in Salesforce objects')
     parser.add_argument('--org', dest='org_alias', required=True, help='Salesforce CLI alias (org name), e.g., org-qa')
     parser.add_argument('--domain', dest='domain', default='test', help='Salesforce domain (login domain), default: test')
+    parser.add_argument('--mode', dest='mode', default='product', help='Specify whether the retrieval should be based on product or action')
     args = parser.parse_args()
 
-    print('----------------- PER PRODUCT ----------------------')
-    # Get Schema for Quote Line Items
-    print('----------------- QLI ----------------------')
-    get_editable_field_per_product('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
-    print('--------------------------------------------')
-    # Get Schema for Quote Line Items
-    print('----------------- ORP ----------------------')
-    get_editable_field_per_product('OrderItem', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
-    print('-------------------------------------')
-    # Get Schema for Quote Line Items
-    print('----------------- Asset --------------------')
-    get_editable_field_per_product('Asset', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
-    print('--------------------------------------------')
+    if args.mode == 'product':
+        print('----------------- PER PRODUCT ----------------------')
+        # Get Schema for Quote Line Items
+        print('----------------- QLI ----------------------')
+        get_editable_field_per_product('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
+        print('--------------------------------------------')
+        # Get Schema for Quote Line Items
+        print('----------------- ORP ----------------------')
+        get_editable_field_per_product('OrderItem', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
+        print('-------------------------------------')
+        # Get Schema for Quote Line Items
+        print('----------------- Asset --------------------')
+        get_editable_field_per_product('Asset', 'Product2Id', ' WHERE isDeleted = false', args.org_alias, args.domain)
+        print('--------------------------------------------')
 
-    # print('----------------- PER PRODUCT AND ACTION----------------------')
-    # # Get Schema for Quote Line Items
-    # print('----------------- QLI ----------------------')
-    # get_editable_field_per_product_and_action('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c', args.org_alias, args.domain)
-    # print('--------------------------------------------')
-    # # Get Schema for Quote Line Items
-    # print('----------------- ORP ----------------------')
-    # get_editable_field_per_product_and_action('OrderItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c', args.org_alias, args.domain)
-    # print('-------------------------------------')
+    if args.mode == 'action':
+        print('----------------- PER PRODUCT AND ACTION----------------------')
+        # Get Schema for Quote Line Items
+        print('----------------- QLI ----------------------')
+        get_editable_field_per_product_and_action('QuoteLineItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c', args.org_alias, args.domain)
+        print('--------------------------------------------')
+        # Get Schema for Quote Line Items
+        print('----------------- ORP ----------------------')
+        get_editable_field_per_product_and_action('OrderItem', 'Product2Id', ' WHERE isDeleted = false', 'vlocity_cmt__Action__c', 'vlocity_cmt__SubAction__c', args.org_alias, args.domain)
+        print('-------------------------------------')
