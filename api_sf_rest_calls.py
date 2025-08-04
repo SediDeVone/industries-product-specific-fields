@@ -26,7 +26,7 @@ def sf_api_call(access_token, instance_url, action, parameters={}, method='get',
         raise Exception('API error when calling %s : %s' % (r.url, r.content))
 
 def prepare_object_fields_describe(access_token, instance_url, object_to_export, all_fields, persistent_external_id):
-    describe = sf_api_call(access_token, instance_url, '/services/data/v43.0/sobjects/%s/describe' % object_to_export)
+    describe = sf_api_call(access_token, instance_url, '/services/data/v60.0/sobjects/%s/describe' % object_to_export)
 
     if not describe.get('queryable', False):
         raise Exception("This object is not queryable")
@@ -53,7 +53,7 @@ def download_all(access_token, instance_url, object_to_export, variant_query, al
         limit
     )
 
-    call = sf_api_call(access_token, instance_url, '/services/data/v43.0/queryAll/', {'q': query})
+    call = sf_api_call(access_token, instance_url, '/services/data/v60.0/queryAll/', {'q': query})
 
     rows = call.get('records', [])
 
