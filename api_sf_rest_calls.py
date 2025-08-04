@@ -33,12 +33,7 @@ def prepare_object_fields_describe(access_token, instance_url, object_to_export,
 
     fields = []
     for f in describe.get('fields'):
-        if f['name'] == 'Agreement_Number__c':
-            fields.append(f['name'])
-
-        if all_fields or (persistent_external_id and (f['name'] == 'Id' or f['name'] == 'PersonContactId')):
-            fields.append(f['name'])
-        elif f['updateable'] or f['createable']:
+        if f['updateable'] or f['createable']:
             fields.append(f['name'])
 
     return fields
