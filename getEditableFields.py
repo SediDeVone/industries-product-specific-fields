@@ -3,34 +3,39 @@ from salesforceConnector import connect_to_sf_environment
 import argparse
 import datetime
 import os
+from typing import Dict, List, Set
 
 
-def get_editable_field_per_product(object_name, product_id_field, default_retrieve_query, org_alias, domain='test'):
+def get_editable_field_per_product(object_name: str, product_id_field: str, default_retrieve_query: str, org_alias: str, domain: str = 'test') -> Dict[str, Set[str]]:
+    """Compute set of non-empty fields per product for the given SObject.
+
+    Returns a mapping: Product2.Name -> set(field API names)
+    """
     object_limit = 50000
 
     source_access_token, source_instance_url = connect_to_sf_environment(org_alias, domain)
 
-    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,False)
+    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name, False)
 
     retrieved_records = download_all(source_access_token, source_instance_url, object_name,
-                                          default_retrieve_query, True, object_limit)
+                                     default_retrieve_query, True, object_limit)
 
     product_records = download_all(source_access_token, source_instance_url, 'Product2',
-                                          default_retrieve_query, True, object_limit)
+                                   default_retrieve_query, True, object_limit)
     product_dict = convert_objects_to_dict(product_records, 'Id')
 
-    fields_map = dict()
+    fields_map: Dict[str, Set[str]] = dict()
     for main_record in retrieved_records:
-        if main_record[product_id_field] in product_dict:
-            product_name = product_dict[main_record[product_id_field]]['Name']
-            if product_name in fields_map:
-                appropiate_fields = fields_map[product_name]
-            else:
-                appropiate_fields = set()
+        product_id = main_record.get(product_id_field)
+        if product_id and product_id in product_dict:
+            product_name = product_dict[product_id].get('Name')
+            if not product_name:
+                continue
+            appropiate_fields = fields_map.get(product_name, set())
 
             for field_name in createable_fields:
-                field_value = main_record[field_name]
-                if field_value is not None and field_value != "" and field_value != 0 and field_value != False:
+                field_value = main_record.get(field_name)
+                if field_value not in (None, "", 0, False):
                     appropiate_fields.add(field_name)
 
             fields_map[product_name] = appropiate_fields
@@ -38,44 +43,47 @@ def get_editable_field_per_product(object_name, product_id_field, default_retrie
     return fields_map
 
 
-def get_editable_field_per_product_and_action(object_name, product_id_field, default_retrieve_query, action_field_name, sub_action_field_name, org_alias, domain='test'):
+def get_editable_field_per_product_and_action(object_name: str, product_id_field: str, default_retrieve_query: str, action_field_name: str, sub_action_field_name: str, org_alias: str, domain: str = 'test') -> Dict[str, Dict[str, Set[str]]]:
+    """Compute non-empty fields per product broken down by action and sub-action.
+
+    Returns: Product2.Name -> { Action/SubAction label -> set(field API names) }
+    """
     object_limit = 50000
 
     source_access_token, source_instance_url = connect_to_sf_environment(org_alias, domain)
 
-    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,False)
+    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name, False)
 
     retrieved_records = download_all(source_access_token, source_instance_url, object_name,
-                                          default_retrieve_query, True, object_limit)
+                                     default_retrieve_query, True, object_limit)
 
     product_records = download_all(source_access_token, source_instance_url, 'Product2',
-                                          default_retrieve_query, True, object_limit)
+                                   default_retrieve_query, True, object_limit)
     product_dict = convert_objects_to_dict(product_records, 'Id')
 
-    fields_map = dict()
+    fields_map: Dict[str, Dict[str, Set[str]]] = dict()
     for main_record in retrieved_records:
-        product_name = product_dict[main_record[product_id_field]]['Name']
-        action_name = main_record[action_field_name]
-        sub_action_name = main_record[sub_action_field_name]
+        product_id = main_record.get(product_id_field)
+        if not product_id or product_id not in product_dict:
+            continue
+        product_name = product_dict[product_id].get('Name')
+        if not product_name:
+            continue
+        action_name = main_record.get(action_field_name)
+        sub_action_name = main_record.get(sub_action_field_name)
         final_action_name = prepare_action_name(action_name, sub_action_name)
 
-        if product_name in fields_map:
-            appropiate_fields_per_action = fields_map[product_name]
-        else:
-            appropiate_fields_per_action = dict()
-            fields_map[product_name] = appropiate_fields_per_action
+        appropiate_fields_per_action = fields_map.get(product_name, {})
 
-        if final_action_name in appropiate_fields_per_action:
-            appropiate_fields = appropiate_fields_per_action[final_action_name]
-        else:
-            appropiate_fields = set()
+        appropiate_fields = appropiate_fields_per_action.get(final_action_name, set())
 
         for field_name in createable_fields:
-            field_value = main_record[field_name]
-            if field_value is not None and field_value != "" and field_value != 0 and field_value != False:
+            field_value = main_record.get(field_name)
+            if field_value not in (None, "", 0, False):
                 appropiate_fields.add(field_name)
 
-        fields_map[product_name][final_action_name] = appropiate_fields
+        appropiate_fields_per_action[final_action_name] = appropiate_fields
+        fields_map[product_name] = appropiate_fields_per_action
 
     return fields_map
 
@@ -91,7 +99,7 @@ def prepare_action_name(action_name, subaction_name):
     else:
         _subaction_name = subaction_name
 
-    return _action_name + ' ' + _subaction_name
+    return (_action_name + ' ' + _subaction_name).strip()
 
 
 def convert_objects_to_dict(main_records, field_name):
@@ -115,7 +123,7 @@ if __name__ == "__main__":
     default_name = f'editable_fields_{args.mode}_{timestamp}.md'
     out_path = args.out_file or default_name
 
-    lines = []
+    lines: List[str] = []
 
     if args.mode == 'product':
         lines.append('# Editable Fields Per Product')

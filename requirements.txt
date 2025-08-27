@@ -1,4 +1,4 @@
-requests
-unicodecsv
-salesforce_bulk
-simple_salesforce
+requests>=2.28,<3
+unicodecsv>=0.14.1,<0.15
+salesforce-bulk>=2.2.0,<3
+simple-salesforce>=1.12.6,<2
