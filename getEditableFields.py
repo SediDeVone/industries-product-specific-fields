@@ -10,14 +10,13 @@ def get_editable_field_per_product(object_name, product_id_field, default_retrie
 
     source_access_token, source_instance_url = connect_to_sf_environment(org_alias, domain)
 
-    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,
-                                                   False, False)
+    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,False)
 
     retrieved_records = download_all(source_access_token, source_instance_url, object_name,
-                                          default_retrieve_query, True, object_limit, False)
+                                          default_retrieve_query, True, object_limit)
 
     product_records = download_all(source_access_token, source_instance_url, 'Product2',
-                                          default_retrieve_query, True, object_limit, False)
+                                          default_retrieve_query, True, object_limit)
     product_dict = convert_objects_to_dict(product_records, 'Id')
 
     fields_map = dict()
@@ -44,14 +43,13 @@ def get_editable_field_per_product_and_action(object_name, product_id_field, def
 
     source_access_token, source_instance_url = connect_to_sf_environment(org_alias, domain)
 
-    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,
-                                                   False, False)
+    createable_fields = prepare_object_fields_describe(source_access_token, source_instance_url, object_name,False)
 
     retrieved_records = download_all(source_access_token, source_instance_url, object_name,
-                                          default_retrieve_query, True, object_limit, False)
+                                          default_retrieve_query, True, object_limit)
 
     product_records = download_all(source_access_token, source_instance_url, 'Product2',
-                                          default_retrieve_query, True, object_limit, False)
+                                          default_retrieve_query, True, object_limit)
     product_dict = convert_objects_to_dict(product_records, 'Id')
 
     fields_map = dict()
