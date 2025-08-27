@@ -33,7 +33,9 @@ def prepare_object_fields_describe(access_token, instance_url, object_to_export,
 
     fields = []
     for f in describe.get('fields'):
-        if f['updateable'] or f['createable']:
+        if all_fields:
+            fields.append(f['name'])
+        elif f['updateable'] or f['createable']:
             fields.append(f['name'])
 
     return fields
