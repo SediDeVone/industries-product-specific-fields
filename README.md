@@ -65,7 +65,7 @@ Note: You can specify the Salesforce org alias and domain at runtime using comma
 Run the main script to analyze fields per product:
 
 ```
-python getEditableFields.py --org <your-org-alias> --domain <login-domain>
+python getEditableFields.py --org <your-org-alias> --domain <login-domain> [--mode product|action] [--out path/to/output.md]
 ```
 
 Examples:
@@ -73,16 +73,16 @@ Examples:
 ```
 python getEditableFields.py --org org-qa
 ```
-- Using a production alias and login domain:
+- Using a production alias and login domain and custom output path:
 ```
-python getEditableFields.py --org org-prod --domain login
+python getEditableFields.py --org org-prod --domain login --mode action --out reports/fields.md
 ```
 
 This will:
 1. Connect to your Salesforce organization via the Salesforce CLI token
 2. Retrieve records for QuoteLineItem, OrderItem, and Asset
 3. Analyze which fields are populated for each product
-4. Output the results to the console
+4. Output the results to a Markdown (.md) file
 
 You can modify the script to:
 - Analyze different objects (change object names and product id field in get_editable_field_per_product calls)
